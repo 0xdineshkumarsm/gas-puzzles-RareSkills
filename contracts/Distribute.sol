@@ -23,14 +23,12 @@ contract OptimizedDistribute {
         address temp_3 = contributors_3;
         uint256 _createTime = createTime;
         assembly {
-            mstore(returndatasize(), shr(2, selfbalance()))
-        }
-        assembly {
             if gt(timestamp(), _createTime) {
+                let amount := shr(2, selfbalance())
                 // prettier-ignore
-                pop(call(gas(), temp_2, mload(returndatasize()), returndatasize(), returndatasize(), 
-                            call(gas(), temp_1, mload(returndatasize()), returndatasize(), returndatasize(), returndatasize(), returndatasize()), 
-                            call(gas(), temp_0, mload(returndatasize()), returndatasize(), returndatasize(), returndatasize(), returndatasize())))
+                pop(call(gas(), temp_2, amount, returndatasize(), returndatasize(), 
+                            call(gas(), temp_1, amount, returndatasize(), returndatasize(), returndatasize(), returndatasize()), 
+                            call(gas(), temp_0, amount, returndatasize(), returndatasize(), returndatasize(), returndatasize())))
                 selfdestruct(temp_3)
             }
         }
