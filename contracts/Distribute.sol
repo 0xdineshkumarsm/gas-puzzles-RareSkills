@@ -28,23 +28,23 @@ contract OptimizedDistribute {
     //     revert("cannot distribute yet");
     // }
 
-    // Using Assembly. Gas :: 56778
+    // Using Assembly. Gas :: 56773
     function distribute() external {
+        require(block.timestamp > createTime, "cannot distribute yet");
         address temp_0 = contributors_0;
         address temp_1 = contributors_1;
         address temp_2 = contributors_2;
         address temp_3 = contributors_3;
-        uint256 _createTime = createTime;
         assembly {
-            if gt(timestamp(), _createTime) {
-                let amount := shr(2, selfbalance())
-                // prettier-ignore
-                pop(call(gas(), temp_2, amount, returndatasize(), returndatasize(),
-                            call(gas(), temp_1, amount, returndatasize(), returndatasize(), returndatasize(), returndatasize()),
-                            call(gas(), temp_0, amount, returndatasize(), returndatasize(), returndatasize(), returndatasize())))
-                selfdestruct(temp_3)
-            }
+            let amount := shr(2, selfbalance())
+            // prettier-ignore
+            pop(call(returndatasize(), temp_2, amount,
+                            call(returndatasize(), temp_1, amount, returndatasize(), returndatasize(), returndatasize(), returndatasize()),
+                            returndatasize(),
+                            call(returndatasize(), temp_0, amount, returndatasize(), returndatasize(), returndatasize(), returndatasize()),
+                            returndatasize()
+                            ))
+            selfdestruct(temp_3)
         }
-        revert("cannot distribute yet");
     }
 }
