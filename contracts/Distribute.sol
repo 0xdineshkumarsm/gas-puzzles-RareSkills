@@ -2,10 +2,10 @@
 pragma solidity 0.8.15;
 
 contract OptimizedDistribute {
-    address payable immutable contributors_0;
-    address payable immutable contributors_1;
-    address payable immutable contributors_2;
-    address payable immutable contributors_3;
+    address immutable contributors_0;
+    address immutable contributors_1;
+    address immutable contributors_2;
+    address immutable contributors_3;
     uint256 immutable createTime;
 
     constructor(address[4] memory _contributors) payable {
@@ -16,16 +16,14 @@ contract OptimizedDistribute {
         createTime = block.timestamp + 1 weeks;
     }
 
-    // Using Solidity. Gas :: 56940
+    // Using Solidity. Gas :: 56938
     // function distribute() external {
     //     uint256 amount = address(this).balance >> 2;
-    //     if (block.timestamp > createTime) {
-    //         contributors_0.send(amount);
-    //         contributors_1.send(amount);
-    //         contributors_2.send(amount);
-    //         selfdestruct(contributors_3);
-    //     }
-    //     revert("cannot distribute yet");
+    //     require(block.timestamp > createTime, "cannot distribute yet");
+    //     payable(contributors_0).send(amount);
+    //     payable(contributors_1).send(amount);
+    //     payable(contributors_2).send(amount);
+    //     selfdestruct(payable(contributors_3));
     // }
 
     // Using Assembly. Gas :: 56773
