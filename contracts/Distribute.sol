@@ -6,20 +6,20 @@ contract OptimizedDistribute {
     address immutable contributors_1;
     address immutable contributors_2;
     address immutable contributors_3;
-    uint256 immutable createTime;
+    uint256 immutable endTime;
 
     constructor(address[4] memory _contributors) payable {
         contributors_0 = payable(_contributors[0]);
         contributors_1 = payable(_contributors[1]);
         contributors_2 = payable(_contributors[2]);
         contributors_3 = payable(_contributors[3]);
-        createTime = block.timestamp + 1 weeks;
+        endTime = block.timestamp + 1 weeks;
     }
 
     // Using Solidity. Gas :: 56938
     // function distribute() external {
     //     uint256 amount = address(this).balance >> 2;
-    //     require(block.timestamp > createTime, "cannot distribute yet");
+    //     require(block.timestamp > endTime, "cannot distribute yet");
     //     payable(contributors_0).send(amount);
     //     payable(contributors_1).send(amount);
     //     payable(contributors_2).send(amount);
@@ -28,7 +28,7 @@ contract OptimizedDistribute {
 
     // Using Assembly. Gas :: 56773
     function distribute() external {
-        require(block.timestamp > createTime, "cannot distribute yet");
+        require(block.timestamp > endTime, "cannot distribute yet");
         address temp_0 = contributors_0;
         address temp_1 = contributors_1;
         address temp_2 = contributors_2;
