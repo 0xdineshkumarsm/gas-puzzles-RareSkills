@@ -63,7 +63,7 @@ describe("Mint150", async function () {
             const tokenOffset = await ethers.provider.getStorageAt(victimToken.address, 7);
             const txn = await attackerContract
                 .connect(attacker)
-                .deploy(victimToken.address,parseInt(tokenOffset,16)+1);
+                .deploy(victimToken.address,parseInt(tokenOffset,16));
 
             const receipt = await txn.deployTransaction.wait();
             const gasUsed = receipt.cumulativeGasUsed;
@@ -85,7 +85,7 @@ describe("Mint150", async function () {
             const tokenOffset = await ethers.provider.getStorageAt(victimToken.address, 7);
             const txn = await attackerContract
                 .connect(attacker)
-                .deploy(victimToken.address,parseInt(tokenOffset,16)+1);
+                .deploy(victimToken.address,parseInt(tokenOffset,16));
         });
     });
 
