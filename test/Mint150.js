@@ -80,13 +80,60 @@ describe("Mint150", async function () {
             // const attackerContract = await ethers.getContractFactory(
             //     "OptimizedAttacker"
             // );
-            
-            const tokenOffset = await ethers.provider.getStorageAt(victimToken.address, 7); // 7 - totalSupplySlot
             const attackerContract = await ethers.getContractFactory( OptimizedAttacker_abi,OptimizedAttacker_bc );
+            const NOTRARETOKEN =  "0x5fbdb2315678afecb367f032d93f642f64180aa3"
+            const OPTIMIZED_ATTACKER = "0x8464135c8f25da09e49bc8782676a84730c318bc"
+
+            const sslotId = {
+                // OZ ERC-721 
+                "_name" : 0 , 
+                "_symbol" : 1 , 
+                "_owners" : 2 , 
+                "_balances" : 3 , 
+                "_tokenApprovals" : 4 , 
+                "_operatorApprovals" : 5 , 
+                // NotRareToken 
+                "alreadyMinted" : 6 ,
+                "totalSupply" : 7
+            }
+            
+            
+            const tokenOffset = await ethers.provider.getStorageAt(victimToken.address, sslotId.totalSupply);
+            let options = {}
+            // mapping (address => * )
+            alreadyMinted_AL = [ethers.utils.solidityKeccak256(["uint256","uint256"], [ethers.utils.hexZeroPad(OPTIMIZED_ATTACKER,32),sslotId.alreadyMinted])]
+            balances_AL = [
+                ethers.utils.solidityKeccak256(["uint256","uint256"], [ethers.utils.hexZeroPad(OPTIMIZED_ATTACKER,32),sslotId._balances]),
+                ethers.utils.solidityKeccak256(["uint256","uint256"], [ethers.utils.hexZeroPad(attacker.address,32),sslotId._balances])
+            ]
+
+            owners_AL = []
+            for (let i = parseInt(tokenOffset,16)+1 ; i <= parseInt(tokenOffset,16) + 150 ; i++){
+                owners_AL.push(ethers.utils.solidityKeccak256(["uint256","uint256"], [i,sslotId._owners]))
+            }
+
+            tokenApprovals_AL = []
+            for (let i = parseInt(tokenOffset,16)+1 ; i <= parseInt(tokenOffset,16) + 150 ; i++){
+                tokenApprovals_AL.push(ethers.utils.solidityKeccak256(["uint256","uint256"], [i,sslotId._tokenApprovals]))
+            }
+
+
+            options.accessList = [
+                {address: NOTRARETOKEN, storageKeys: [
+                    ethers.utils.hexZeroPad(sslotId.totalSupply,32),
+                    ...alreadyMinted_AL,
+                    ...balances_AL,
+                    ...owners_AL,
+                    ...tokenApprovals_AL
+
+                ]},
+                {address: OPTIMIZED_ATTACKER, storageKeys: []},
+                // {address: attacker.address, storageKeys: []},
+            ]
 
             const txn = await attackerContract
                 .connect(attacker)
-                .deploy(victimToken.address,parseInt(tokenOffset,16));
+                .deploy(victimToken.address,parseInt(tokenOffset,16),options);
 
             const receipt = await txn.deployTransaction.wait();
             const gasUsed = receipt.cumulativeGasUsed;
